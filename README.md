@@ -4,6 +4,14 @@ I Code Easy 的 Agent Skills，支持 Codex 和 Claude Code，使用同一套模
 
 English version: [README.en.md](README.en.md)
 
+## 太长不看版
+
+直接把这句话发给 Codex 或 Claude Code。
+
+```text
+请按 README 把 https://github.com/icodeeasyai/skills 里的技能安装到我正在用的客户端。
+```
+
 ## 安装目录与调用
 
 先在当前终端选择安装目录，再运行下方对应的安装命令。命令使用 `curl` 和 `tar`，会把模型入口和共享脚本放在同一目录下。

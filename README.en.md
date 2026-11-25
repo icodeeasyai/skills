@@ -4,6 +4,14 @@ Agent Skills for Codex and Claude Code, sharing the same model instructions and 
 
 中文版本: [README.md](README.md)
 
+## Quick install
+
+Paste this into Codex or Claude Code.
+
+```text
+Follow the README to install the skills from https://github.com/icodeeasyai/skills for the client I’m using.
+```
+
 ## Installation directory and invocation
 
 Choose an installation directory in your current terminal, then run the relevant installation command below. The commands use `curl` and `tar` and place model skills and shared scripts under the same directory.

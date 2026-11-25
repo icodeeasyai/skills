@@ -1,11 +1,11 @@
 ---
 name: seedance-1-5-pro-icodeeasy
-description: Use when generating Seedance 1.5 Pro videos (doubao-seedance-1.5-pro) through iCodeEasy from text prompts, or explicitly invoking $seedance-1-5-pro-icodeeasy.
+description: Use when generating Seedance 1.5 Pro videos (doubao-seedance-1-5-pro) through iCodeEasy from text prompts, or explicitly invoking $seedance-1-5-pro-icodeeasy.
 ---
 
 # Seedance 1.5 Pro · iCodeEasy
 
-此入口固定使用 `doubao-seedance-1.5-pro`，通过 [doubao_seedance_1_5_pro.py](../icodeeasy-video-generations/scripts/doubao_seedance_1_5_pro.py) 创建任务。安装时同时安装 `icodeeasy-video-generations`，将脚本路径解析为实际绝对路径，从用户项目目录执行。
+此入口固定使用 `doubao-seedance-1-5-pro`，通过 [doubao_seedance_1_5_pro.py](../icodeeasy-video-generations/scripts/doubao_seedance_1_5_pro.py) 创建任务。安装时同时安装 `icodeeasy-video-generations`，将脚本路径解析为实际绝对路径，从用户项目目录执行。
 
 分辨率支持 480p、720p、1080p，时长 4–12 秒。默认 480p、9:16、4 秒。
 

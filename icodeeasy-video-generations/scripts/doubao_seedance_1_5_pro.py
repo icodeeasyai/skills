@@ -7,7 +7,7 @@ from _video_common import StandardModelSpec, run_standard_model
 
 
 MODEL_SPEC = StandardModelSpec(
-    canonical_id="doubao-seedance-1.5-pro",
+    canonical_id="doubao-seedance-1-5-pro",
     resolution_choices=("480p", "720p", "1080p"),
     default_resolution="480p",
     ratio_choices=("16:9", "4:3", "1:1", "3:4", "9:16", "21:9"),

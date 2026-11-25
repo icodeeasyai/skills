@@ -44,13 +44,14 @@ class Seedance15ProTests(unittest.TestCase):
             with self.subTest(arguments=arguments), self.assertRaises(SystemExit):
                 parser.parse_args(arguments)
 
-    def test_standard_payload_omits_content(self) -> None:
+    def test_text_payload_uses_the_public_model_id(self) -> None:
         args = build_standard_parser(MODEL_SPEC).parse_args(
             ("create", "--prompt", "A bright studio")
         )
 
         payload = build_standard_payload(MODEL_SPEC, args)
 
+        self.assertEqual(payload["model"], "doubao-seedance-1-5-pro")
         self.assertNotIn("content", payload)
 
 

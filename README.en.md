@@ -64,21 +64,33 @@ The general [icodeeasy-image-generations](icodeeasy-image-generations/SKILL.md) 
 
 | Model | Skill |
 | --- | --- |
-| Hunyuan 3D 3.1 and Express | [hunyuan-3d-icodeeasy](hunyuan-3d-icodeeasy/SKILL.md) |
-| Tripo H3.1, P1, and P2 | [tripo-3d-icodeeasy](tripo-3d-icodeeasy/SKILL.md) |
-| Seedance 2.5, 2.5 Flash, 2.0 variants, and 1.5 Pro | [seedance-icodeeasy](seedance-icodeeasy/SKILL.md) |
+| Hunyuan 3D 3.1 | [hunyuan-3d-3-1-icodeeasy](hunyuan-3d-3-1-icodeeasy/SKILL.md) |
+| Hunyuan 3D Express | [hunyuan-3d-express-icodeeasy](hunyuan-3d-express-icodeeasy/SKILL.md) |
+| Tripo H3.1 | [tripo-h3-1-icodeeasy](tripo-h3-1-icodeeasy/SKILL.md) |
+| Tripo P1 | [tripo-p1-icodeeasy](tripo-p1-icodeeasy/SKILL.md) |
+| Tripo P2 | [tripo-p2-icodeeasy](tripo-p2-icodeeasy/SKILL.md) |
+| Seedance 2.5 | [seedance-2-5-icodeeasy](seedance-2-5-icodeeasy/SKILL.md) |
+| Seedance 2.5 Flash | [seedance-2-5-flash-icodeeasy](seedance-2-5-flash-icodeeasy/SKILL.md) |
+| Seedance 2.0 | [seedance-2-0-icodeeasy](seedance-2-0-icodeeasy/SKILL.md) |
+| Seedance 2.0 Fast | [seedance-2-0-fast-icodeeasy](seedance-2-0-fast-icodeeasy/SKILL.md) |
+| Seedance 2.0 Mini | [seedance-2-0-mini-icodeeasy](seedance-2-0-mini-icodeeasy/SKILL.md) |
+| Seedance 1.5 Pro | [seedance-1-5-pro-icodeeasy](seedance-1-5-pro-icodeeasy/SKILL.md) |
 | MiniMax H3 video | [minimax-h3-icodeeasy](minimax-h3-icodeeasy/SKILL.md) |
 
 The [general 3D skill](icodeeasy-3d-generations/SKILL.md) covers model discovery, price quotes, generation, polling, and downloads. The [general video skill](icodeeasy-video-generations/SKILL.md) also covers other supported video models and recovery of existing tasks.
 
-Install or update all four entries and their shared scripts with the command below. It preserves extra local files. Restart Codex afterward.
+Install or update the model skills and their shared scripts with the command below.
 
 ```bash
 (
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
-  set -- hunyuan-3d-icodeeasy tripo-3d-icodeeasy icodeeasy-3d-generations \
-         seedance-icodeeasy minimax-h3-icodeeasy icodeeasy-video-generations
+  set -- icodeeasy-3d-generations icodeeasy-video-generations \
+         hunyuan-3d-3-1-icodeeasy hunyuan-3d-express-icodeeasy \
+         tripo-h3-1-icodeeasy tripo-p1-icodeeasy tripo-p2-icodeeasy \
+         seedance-2-5-icodeeasy seedance-2-5-flash-icodeeasy \
+         seedance-2-0-icodeeasy seedance-2-0-fast-icodeeasy seedance-2-0-mini-icodeeasy \
+         seedance-1-5-pro-icodeeasy minimax-h3-icodeeasy
   curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
   tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" || exit 1
   for skill_name do
@@ -91,12 +103,14 @@ Install or update all four entries and their shared scripts with the command bel
 )
 ```
 
+If you installed the previous release, you can remove the old `SKILL.md` files from the `hunyuan-3d-icodeeasy`, `tripo-3d-icodeeasy`, and `seedance-icodeeasy` directories under `~/.codex/skills/`. Restart Codex to use the entries in the table.
+
 Set your iCodeEasy account API key in its own environment variable.
 
 ```bash
 export ICODEEASY_API_KEY="<your-api-key>"
 ```
 
-Try `$hunyuan-3d-icodeeasy create a low-poly ceramic cup as a GLB` or `$seedance-icodeeasy create a six-second video of morning mist on a lake with 2.5 Flash`. Creating a task incurs charges. Use `--confirm-paid` after the user authorizes the call. Use `--dry-run` to inspect a request or `quote` to check the current price of a 3D request.
+Try `$hunyuan-3d-3-1-icodeeasy create a low-poly ceramic cup as a GLB` or `$seedance-2-5-flash-icodeeasy create a six-second video of morning mist on a lake`. Creating a task incurs charges. Use `--confirm-paid` after the user authorizes the call. Use `--dry-run` to inspect a request or `quote` to check the current price of a 3D request.
 
 If polling or downloading is interrupted, keep the task ID and recover the same task. Completed videos are also available in the API key owner's [usage details](https://icodeeasy.ai/dashboard/logs/).

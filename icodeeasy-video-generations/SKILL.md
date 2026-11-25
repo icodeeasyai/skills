@@ -1,11 +1,11 @@
 ---
 name: icodeeasy-video-generations
-description: Use when creating, polling, downloading, or deleting iCodeEasy asynchronous video-generation tasks with the supported Seedance, MiniMax, Grok, or Kling video models.
+description: Use for iCodeEasy video task recovery, video models without a dedicated skill, or when explicitly invoking $icodeeasy-video-generations.
 ---
 
 # iCodeEasy Video Generations
 
-Create asynchronous video tasks through the iCodeEasy Video API. Use the model-specific Python command so its validation matches the selected model. The [Seedance](../seedance-icodeeasy/SKILL.md) and [MiniMax H3](../minimax-h3-icodeeasy/SKILL.md) skills give model-specific guidance.
+Create asynchronous video tasks through the iCodeEasy Video API. Use the model-specific Python command so its validation matches the selected model.
 
 ## Safe workflow
 

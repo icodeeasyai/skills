@@ -1,0 +1,26 @@
+---
+name: seedance-2-5-flash-icodeeasy
+description: Use when generating Seedance 2.5 Flash videos (doubao-seedance-2-5-flash) through iCodeEasy from text, frames, or reference videos, or explicitly invoking $seedance-2-5-flash-icodeeasy.
+---
+
+# Seedance 2.5 Flash · iCodeEasy
+
+此入口固定使用 `doubao-seedance-2-5-flash`，通过 [doubao_seedance_2_5_flash.py](../icodeeasy-video-generations/scripts/doubao_seedance_2_5_flash.py) 创建任务。安装时同时安装 `icodeeasy-video-generations`，将脚本路径解析为实际绝对路径，从用户项目目录执行。
+
+分辨率支持 480p、720p，时长 4–30 秒。默认 480p、9:16、4 秒。
+
+首帧用 `--first-frame HTTPS_URL`，首尾帧同时添加 `--last-frame HTTPS_URL`。帧引导且没有参考视频时，省略 `--ratio` 或设为 `adaptive`，输出画幅跟随首帧。需要固定画幅时先裁剪首帧。
+
+默认开启音轨，可加 `--no-generate-audio` 关闭。比例可选 `16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive`。
+
+参考视频用可重复的 `--reference-video HTTPS_URL`，最多 5 段。每段 MP4/MOV 2–30 秒，合计最多 30 秒。可搭配 `--reference-image HTTPS_URL`，同一请求的图片总数最多两张。在提示词中按传入顺序使用 `@Video1`、`@Video2`。参考视频模式可以设固定比例，图片作为普通参考。输入和输出共同参与计费，素材限制与结算规则见 [视频 API 文档](https://icodeeasy.ai/docs/video-generation/)。
+
+先用下列命令离线预检。用户授权付费生成后，用 `--confirm-paid` 替换 `--dry-run`，并先创建输出目录。
+
+```bash
+python3 /absolute/path/to/icodeeasy-video-generations/scripts/doubao_seedance_2_5_flash.py --json run \
+  --prompt "镜头跟随一艘灯船穿过清晨薄雾" --ratio 16:9 --duration 6 \
+  --dry-run --output ./out/lantern.mp4
+```
+
+保存任务 ID 和幂等键。等待或下载中断时，用 [video_task.py](../icodeeasy-video-generations/scripts/video_task.py) 的 `poll TASK_ID --wait` 或 `download TASK_ID --output PATH` 恢复同一任务。提交结果不明时使用原请求与原幂等键重试。完成后交付本地视频绝对路径和实际型号。认证和恢复细节见 [视频 skill API 参考](../icodeeasy-video-generations/references/api.md)。

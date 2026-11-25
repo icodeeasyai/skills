@@ -1,11 +1,11 @@
 ---
 name: icodeeasy-3d-generations
-description: Use when creating, quoting, polling, or downloading iCodeEasy 3D-generation tasks with Hunyuan or Tripo, or explicitly invoking $icodeeasy-3d-generations.
+description: Use for iCodeEasy 3D model discovery, quoting, or task recovery, or when explicitly invoking $icodeeasy-3d-generations.
 ---
 
 # iCodeEasy 3D Generations
 
-使用 [3D 任务脚本](scripts/model3d_task.py) 查询模型、报价、生成并下载 3D 文件。将脚本路径解析为绝对路径，从用户项目目录执行。混元的型号与输入限制见 [混元入口](../hunyuan-3d-icodeeasy/SKILL.md)，Tripo 见 [Tripo 入口](../tripo-3d-icodeeasy/SKILL.md)。保留用户指定的型号与参数。
+使用 [3D 任务脚本](scripts/model3d_task.py) 查询模型、报价、生成并下载 3D 文件。将脚本路径解析为绝对路径，从用户项目目录执行。用 `models` 核对用户指定型号的请求 ID 与可用参数。
 
 认证依次读取 `ICODEEASY_API_KEY`、`OPENAI_API_KEY`、`ANTHROPIC_AUTH_TOKEN`。使用账户 API Key，模型专用 Key 会返回 `403`。默认 API 为 `https://api.icodeeasy.ai`，备用域名为 `https://jp.icodeeasy.ai` 和 `https://sg.icodeeasy.ai`。不要输出或写入密钥。
 

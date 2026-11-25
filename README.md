@@ -64,21 +64,33 @@ export OPENAI_API_KEY="<your-api-key>"
 
 | 模型 | Skill |
 | --- | --- |
-| 混元 3D 3.1、Express | [hunyuan-3d-icodeeasy](hunyuan-3d-icodeeasy/SKILL.md) |
-| Tripo H3.1、P1、P2 | [tripo-3d-icodeeasy](tripo-3d-icodeeasy/SKILL.md) |
-| Seedance 2.5、2.5 Flash、2.0 系列和 1.5 Pro | [seedance-icodeeasy](seedance-icodeeasy/SKILL.md) |
+| 混元 3D 3.1 | [hunyuan-3d-3-1-icodeeasy](hunyuan-3d-3-1-icodeeasy/SKILL.md) |
+| 混元 3D Express | [hunyuan-3d-express-icodeeasy](hunyuan-3d-express-icodeeasy/SKILL.md) |
+| Tripo H3.1 | [tripo-h3-1-icodeeasy](tripo-h3-1-icodeeasy/SKILL.md) |
+| Tripo P1 | [tripo-p1-icodeeasy](tripo-p1-icodeeasy/SKILL.md) |
+| Tripo P2 | [tripo-p2-icodeeasy](tripo-p2-icodeeasy/SKILL.md) |
+| Seedance 2.5 | [seedance-2-5-icodeeasy](seedance-2-5-icodeeasy/SKILL.md) |
+| Seedance 2.5 Flash | [seedance-2-5-flash-icodeeasy](seedance-2-5-flash-icodeeasy/SKILL.md) |
+| Seedance 2.0 | [seedance-2-0-icodeeasy](seedance-2-0-icodeeasy/SKILL.md) |
+| Seedance 2.0 Fast | [seedance-2-0-fast-icodeeasy](seedance-2-0-fast-icodeeasy/SKILL.md) |
+| Seedance 2.0 Mini | [seedance-2-0-mini-icodeeasy](seedance-2-0-mini-icodeeasy/SKILL.md) |
+| Seedance 1.5 Pro | [seedance-1-5-pro-icodeeasy](seedance-1-5-pro-icodeeasy/SKILL.md) |
 | MiniMax H3 视频 | [minimax-h3-icodeeasy](minimax-h3-icodeeasy/SKILL.md) |
 
 [通用 3D skill](icodeeasy-3d-generations/SKILL.md) 提供模型查询、报价、生成、轮询和下载。[通用视频 skill](icodeeasy-video-generations/SKILL.md) 继续提供其他已支持的视频模型和已有任务的恢复。
 
-下面的命令安装或更新四个入口及其共用脚本，保留本地额外文件。运行后重启 Codex。
+下面的命令安装或更新各模型入口及其共用脚本。
 
 ```bash
 (
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
-  set -- hunyuan-3d-icodeeasy tripo-3d-icodeeasy icodeeasy-3d-generations \
-         seedance-icodeeasy minimax-h3-icodeeasy icodeeasy-video-generations
+  set -- icodeeasy-3d-generations icodeeasy-video-generations \
+         hunyuan-3d-3-1-icodeeasy hunyuan-3d-express-icodeeasy \
+         tripo-h3-1-icodeeasy tripo-p1-icodeeasy tripo-p2-icodeeasy \
+         seedance-2-5-icodeeasy seedance-2-5-flash-icodeeasy \
+         seedance-2-0-icodeeasy seedance-2-0-fast-icodeeasy seedance-2-0-mini-icodeeasy \
+         seedance-1-5-pro-icodeeasy minimax-h3-icodeeasy
   curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
   tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" || exit 1
   for skill_name do
@@ -91,12 +103,14 @@ export OPENAI_API_KEY="<your-api-key>"
 )
 ```
 
+升级后，若已安装旧的品牌入口，可从 `~/.codex/skills/` 下的 `hunyuan-3d-icodeeasy`、`tripo-3d-icodeeasy`、`seedance-icodeeasy` 目录移除各自的 `SKILL.md`。重启 Codex 后，使用上表中的模型入口。
+
 在环境中配置 iCodeEasy 的账号 API Key，避免和其他服务的 Key 混用。
 
 ```bash
 export ICODEEASY_API_KEY="<your-api-key>"
 ```
 
-例如 `$hunyuan-3d-icodeeasy 生成一个低模陶杯并保存为 GLB`，或 `$seedance-icodeeasy 用 2.5 Flash 生成一段 6 秒的湖面晨雾视频`。实际创建任务会产生付费调用，获得授权后使用 `--confirm-paid`。可以先用 `--dry-run` 检查请求，3D 任务还可以用 `quote` 查询当前报价。
+例如 `$hunyuan-3d-3-1-icodeeasy 生成一个低模陶杯并保存为 GLB`，或 `$seedance-2-5-flash-icodeeasy 生成一段 6 秒的湖面晨雾视频`。实际创建任务会产生付费调用，获得授权后使用 `--confirm-paid`。可以先用 `--dry-run` 检查请求，3D 任务还可以用 `quote` 查询当前报价。
 
 等待或下载中断时，保存任务 ID 并查询、下载同一任务。成功的视频也可以从 API Key 所属账号的[日志明细](https://icodeeasy.ai/dashboard/logs/)找回。

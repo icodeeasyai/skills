@@ -5,3 +5,5 @@
 *.pyc
 *.part
 **/out/*.mp4
+
+/docs/superpowers/

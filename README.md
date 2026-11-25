@@ -35,7 +35,7 @@ GIF 可以纯文生，也可以附参考图，帧数、帧间隔和尺寸由模�
 (
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
-  curl -fL https://github.com/iccccceeeeee/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
+  curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
   tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" &&
   for skill_dir in "$update_dir"/skills-main/icodeeasy-image-generations \
                    "$update_dir"/skills-main/image*-icodeeasy \
@@ -60,37 +60,43 @@ export OPENAI_API_KEY="<your-api-key>"
 
 [icodeeasy-image-generations](icodeeasy-image-generations/SKILL.md) 是通用生图入口，未指定模型时使用 Image 2。指定 Image 2.5 或 2.6 而未指定变体时，默认使用对应版本的 Flare。
 
-### `icodeeasy-video-generations`
+### 3D 生成与视频生成
 
-通过 iCodeEasy Video API 创建、轮询、下载或删除异步视频任务。
+| 模型 | Skill |
+| --- | --- |
+| 混元 3D 3.1、Express | [hunyuan-3d-icodeeasy](hunyuan-3d-icodeeasy/SKILL.md) |
+| Tripo H3.1、P1、P2 | [tripo-3d-icodeeasy](tripo-3d-icodeeasy/SKILL.md) |
+| Seedance 2.5、2.5 Flash、2.0 系列和 1.5 Pro | [seedance-icodeeasy](seedance-icodeeasy/SKILL.md) |
+| MiniMax H3 视频 | [minimax-h3-icodeeasy](minimax-h3-icodeeasy/SKILL.md) |
 
-安装到 Codex：
+[通用 3D skill](icodeeasy-3d-generations/SKILL.md) 提供模型查询、报价、生成、轮询和下载。[通用视频 skill](icodeeasy-video-generations/SKILL.md) 继续提供其他已支持的视频模型和已有任务的恢复。
 
-```bash
-if [ -d ~/.codex/skills/icodeeasy-video-generations ]; then echo "icodeeasy-video-generations 已安装"; else mkdir -p ~/.codex/skills && curl -L https://github.com/iccccceeeeee/skills/archive/refs/heads/main.tar.gz | tar -xz -C ~/.codex/skills --strip-components=1 skills-main/icodeeasy-video-generations; fi
-```
-
-安装或更新后，重启 Codex，让它重新发现 skill。
-
-配置 API Key：
-
-```bash
-export OPENAI_API_KEY="<your-api-key>"
-```
-
-在 Codex 中调用 `$icodeeasy-video-generations` 并描述要生成的视频。创建任务会产生付费调用；只在用户明确授权后使用 `--confirm-paid`，不确定时先用 `--dry-run`。视频与临时下载保存在 `out/`，默认不提交。
-
-已安装用户需要更新：上面的安装命令在目录存在时会直接跳过。下面的命令下载并校验解包成功后，覆盖视频 skill 的仓库文件；保留本地额外文件。完成后重启 Codex。
+下面的命令安装或更新四个入口及其共用脚本，保留本地额外文件。运行后重启 Codex。
 
 ```bash
 (
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
-  curl -fL https://github.com/iccccceeeeee/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
-  tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" skills-main/icodeeasy-video-generations &&
-  mkdir -p ~/.codex/skills/icodeeasy-video-generations &&
-  cp -R "$update_dir/skills-main/icodeeasy-video-generations/." ~/.codex/skills/icodeeasy-video-generations/
+  set -- hunyuan-3d-icodeeasy tripo-3d-icodeeasy icodeeasy-3d-generations \
+         seedance-icodeeasy minimax-h3-icodeeasy icodeeasy-video-generations
+  curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
+  tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" || exit 1
+  for skill_name do
+    test -f "$update_dir/skills-main/$skill_name/SKILL.md" || exit 1
+  done
+  for skill_name do
+    mkdir -p "$HOME/.codex/skills/$skill_name" &&
+    cp -R "$update_dir/skills-main/$skill_name/." "$HOME/.codex/skills/$skill_name/" || exit 1
+  done
 )
 ```
 
-下载前先创建输出目录，例如 `mkdir -p ./out`。查询或下载失败不代表生成失败。保留任务 ID，用 `video_task.py poll` 或 `download` 恢复原任务；也可在 API Key 所属账号的[日志明细](https://icodeeasy.cc/dashboard/logs/)预览、下载已成功的视频。不要因此重新生成。
+在环境中配置 iCodeEasy 的账号 API Key，避免和其他服务的 Key 混用。
+
+```bash
+export ICODEEASY_API_KEY="<your-api-key>"
+```
+
+例如 `$hunyuan-3d-icodeeasy 生成一个低模陶杯并保存为 GLB`，或 `$seedance-icodeeasy 用 2.5 Flash 生成一段 6 秒的湖面晨雾视频`。实际创建任务会产生付费调用，获得授权后使用 `--confirm-paid`。可以先用 `--dry-run` 检查请求，3D 任务还可以用 `quote` 查询当前报价。
+
+等待或下载中断时，保存任务 ID 并查询、下载同一任务。成功的视频也可以从 API Key 所属账号的[日志明细](https://icodeeasy.ai/dashboard/logs/)找回。

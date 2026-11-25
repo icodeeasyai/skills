@@ -2,9 +2,9 @@
 
 ## Authentication and safety
 
-Commands use `OPENAI_API_KEY`, falling back to `ANTHROPIC_AUTH_TOKEN`. A network `create` or `run` requires `--confirm-paid`; use `--dry-run` first if authorization is absent or the payload needs review. Never print, commit, or otherwise expose credentials.
+Commands use `ICODEEASY_API_KEY`, falling back to `OPENAI_API_KEY` and `ANTHROPIC_AUTH_TOKEN`. A network `create` or `run` requires `--confirm-paid`; use `--dry-run` first if authorization is absent or the payload needs review. Never print, commit, or otherwise expose credentials.
 
-The default API base is `https://api.icodeeasy.cc`. `--base-url` accepts the official backup domains; a custom base requires `--trust-custom-base-url`. The scripts accept public HTTPS reference media only.
+The default API base is `https://api.icodeeasy.ai`. `--base-url` accepts the official backup domains and the legacy `.cc` API domains. A custom base requires `--trust-custom-base-url`. The scripts accept public HTTPS reference media only.
 
 ## Select a model command
 
@@ -13,6 +13,7 @@ Run the selected script with `--help` for its exact model-specific flags, limits
 | Public model | Command |
 | --- | --- |
 | Seedance 2.5 | `python3 scripts/doubao_seedance_2_5.py` |
+| Seedance 2.5 Flash | `python3 scripts/doubao_seedance_2_5_flash.py` |
 | Seedance 2.0 | `python3 scripts/doubao_seedance_2_0.py` |
 | Seedance 2.0 Fast | `python3 scripts/doubao_seedance_2_0_fast.py` |
 | Seedance 2.0 Mini | `python3 scripts/doubao_seedance_2_0_mini.py` |
@@ -31,6 +32,8 @@ All model commands offer `create` and `run`:
 
 - `create` submits one paid task and returns its ID.
 - `run` submits once, polls that same ID until terminal state, and supports `--output` to download the completed video.
+
+Seedance 2.5 and 2.5 Flash support repeatable `--reference-video HTTPS_URL` and `--reference-image HTTPS_URL` in reference-video mode. Use `--first-frame` and optionally `--last-frame` in frame mode, with the ratio omitted or set to `adaptive`. MiniMax H3 accepts fixed ratios with frame inputs. See the [public video API guide](https://icodeeasy.ai/docs/video-generation/) for media limits.
 
 For a task that already exists, use the model-independent lifecycle tool:
 
@@ -61,4 +64,4 @@ An unsuccessful CLI operation is distinct from an unsuccessful generation. JSON 
 - `download`: file retrieval failed. If `status` is `succeeded`, explicitly tell the user generation succeeded and retry only `video_task.py download TASK_ID --output ./out/video.mp4`.
 - `reuse_idempotency_key`: submission is uncertain and no task ID was received. Retain the original key and request payload for recovery; do not submit with a fresh key.
 
-The CLI still exits nonzero when the requested operation does not finish. Treat only a task's explicit `status: failed` as a confirmed generation failure. If file retrieval continues to fail, the API Key owner's [usage details](https://icodeeasy.cc/dashboard/logs/) provide a preview/download recovery entry for successful videos.
+The CLI still exits nonzero when the requested operation does not finish. Treat only a task's explicit `status: failed` as a confirmed generation failure. If file retrieval continues to fail, the API Key owner's [usage details](https://icodeeasy.ai/dashboard/logs/) provide a preview/download recovery entry for successful videos.

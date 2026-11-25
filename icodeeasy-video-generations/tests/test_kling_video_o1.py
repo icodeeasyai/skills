@@ -26,7 +26,7 @@ class KlingVideoO1Tests(unittest.TestCase):
 
         payload = build_standard_payload(MODEL_SPEC, args)
 
-        self.assertEqual((payload["model"], payload["duration"], payload["ratio"]), ("kling-video-o1", 10, "adaptive"))
+        self.assertEqual((payload["model"], payload["duration"], payload["ratio"]), ("kling-video-o1", 10, "9:16"))
         self.assertEqual([image["role"] for image in payload["content"]], ["first_frame", "last_frame"])
 
     def test_rejects_audio_roleless_references_last_only_and_other_durations(self) -> None:

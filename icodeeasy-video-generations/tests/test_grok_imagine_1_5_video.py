@@ -23,6 +23,7 @@ SUPPLIER_WIRE_ID = "grok-imagine-1.5-video-apimart"
 
 def _run(*arguments: str) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
+    environment.pop("ICODEEASY_API_KEY", None)
     environment.pop("OPENAI_API_KEY", None)
     environment.pop("ANTHROPIC_AUTH_TOKEN", None)
     return subprocess.run(

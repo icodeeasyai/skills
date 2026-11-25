@@ -22,11 +22,14 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 
-DEFAULT_BASE_URL = "https://api.icodeeasy.cc"
+DEFAULT_BASE_URL = "https://api.icodeeasy.ai"
 OFFICIAL_HOSTS = frozenset(
-    {"api.icodeeasy.cc", "jp.icodeeasy.cc", "sg.icodeeasy.cc"}
+    {
+        "api.icodeeasy.ai", "jp.icodeeasy.ai", "sg.icodeeasy.ai",
+        "api.icodeeasy.cc", "jp.icodeeasy.cc", "sg.icodeeasy.cc",
+    }
 )
-KEY_ENV_ORDER = ("OPENAI_API_KEY", "ANTHROPIC_AUTH_TOKEN")
+KEY_ENV_ORDER = ("ICODEEASY_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_AUTH_TOKEN")
 MAX_IDEMPOTENCY_KEY_LENGTH = 128
 MAX_DOWNLOAD_REDIRECTS = 2
 TASK_STATUSES_IN_PROGRESS = frozenset({"queued", "running"})
@@ -91,6 +94,8 @@ class StandardModelSpec:
     max_reference_images: int
     validate: StandardValidation | None = None
     reference_image_role: str | None = None
+    max_reference_videos: int = 0
+    frame_ratio: str | None = None
 
 
 @dataclass(frozen=True)
@@ -105,6 +110,22 @@ def require_first_frame_for_last_frame(args: argparse.Namespace) -> None:
 
     if getattr(args, "last_frame", None) and not getattr(args, "first_frame", None):
         raise UserError("--last-frame requires --first-frame for this model.")
+
+
+def validate_seedance25_inputs(args: argparse.Namespace) -> None:
+    """Validate Seedance images while allowing video-guided references."""
+
+    if not args.reference_video:
+        require_first_frame_for_last_frame(args)
+    image_count = len(args.reference_image) + bool(args.first_frame) + bool(args.last_frame)
+    if image_count > 2:
+        raise UserError("This model supports at most 2 images, including first and last frames.")
+
+
+def validate_seedance25_flash_inputs(args: argparse.Namespace) -> None:
+    validate_seedance25_inputs(args)
+    if args.reference_image and not args.reference_video:
+        raise UserError("--reference-image requires --reference-video for Seedance 2.5 Flash.")
 
 
 class _StandardArgumentParser(argparse.ArgumentParser):
@@ -147,7 +168,7 @@ def build_standard_parser(spec: StandardModelSpec) -> argparse.ArgumentParser:
         command.add_argument(
             "--resolution", choices=spec.resolution_choices, default=spec.default_resolution
         )
-        command.add_argument("--ratio", choices=spec.ratio_choices, default=spec.default_ratio)
+        command.add_argument("--ratio", choices=spec.ratio_choices)
         command.add_argument(
             "--duration", type=positive_int, choices=spec.duration_choices,
             default=spec.default_duration,
@@ -168,6 +189,10 @@ def build_standard_parser(spec: StandardModelSpec) -> argparse.ArgumentParser:
                 action="append",
                 default=[],
                 type=validate_https_url,
+            )
+        if spec.max_reference_videos:
+            command.add_argument(
+                "--reference-video", action="append", default=[], type=validate_https_url,
             )
         command.add_argument("--confirm-paid", action="store_true")
         command.add_argument("--dry-run", action="store_true")
@@ -208,11 +233,37 @@ def build_standard_payload(spec: StandardModelSpec, args: argparse.Namespace) ->
             f"This model supports at most {spec.max_reference_images} reference images."
         )
 
+    reference_videos = getattr(args, "reference_video", [])
+    if len(reference_videos) > spec.max_reference_videos:
+        raise UserError(
+            f"This model supports at most {spec.max_reference_videos} reference videos."
+        )
+    for video_url in reference_videos:
+        content.append(
+            {"type": "video_url", "video_url": video_url, "role": "reference_video"}
+        )
+
+    ratio = args.ratio or spec.default_ratio
+    if spec.frame_ratio and content and not reference_videos:
+        if args.ratio is not None and args.ratio != spec.frame_ratio:
+            raise UserError(
+                f"Frame-guided generation requires --ratio {spec.frame_ratio}. "
+                "Omit --ratio to follow the reference image's aspect ratio."
+            )
+        ratio = spec.frame_ratio
+    elif (
+        args.ratio is None
+        and not reference_videos
+        and (first_frame or last_frame)
+        and "adaptive" in spec.ratio_choices
+    ):
+        ratio = "adaptive"
+
     payload: dict[str, Any] = {
         "model": spec.canonical_id,
         "prompt": prompt,
         "resolution": args.resolution,
-        "ratio": "adaptive" if first_frame or last_frame else args.ratio,
+        "ratio": ratio,
         "duration": args.duration,
     }
     if content:
@@ -567,7 +618,7 @@ def resolve_api_key(*, required: bool = True) -> tuple[str, str]:
     if not required:
         return "", ""
     raise UserError(
-        "Missing API key. Set OPENAI_API_KEY or ANTHROPIC_AUTH_TOKEN."
+        "Missing API key. Set ICODEEASY_API_KEY, OPENAI_API_KEY or ANTHROPIC_AUTH_TOKEN."
     )
 
 

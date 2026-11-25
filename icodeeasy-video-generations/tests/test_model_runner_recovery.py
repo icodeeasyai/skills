@@ -25,6 +25,7 @@ MOTION_SCRIPT = SCRIPTS / "kling_v3_motion_control.py"
 
 def _run(script: Path, base_url: str, *arguments: str) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
+    environment.pop("ICODEEASY_API_KEY", None)
     environment.pop("OPENAI_API_KEY", None)
     environment.pop("ANTHROPIC_AUTH_TOKEN", None)
     environment["OPENAI_API_KEY"] = "test-key"
@@ -50,6 +51,7 @@ def _run_human(
     script: Path, base_url: str, *arguments: str
 ) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
+    environment.pop("ICODEEASY_API_KEY", None)
     environment.pop("OPENAI_API_KEY", None)
     environment.pop("ANTHROPIC_AUTH_TOKEN", None)
     environment["OPENAI_API_KEY"] = "test-key"

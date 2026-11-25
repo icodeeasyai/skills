@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from _video_common import StandardModelSpec, run_standard_model
+from _video_common import StandardModelSpec, require_first_frame_for_last_frame, run_standard_model
 
 
 MODEL_SPEC = StandardModelSpec(
@@ -19,6 +19,7 @@ MODEL_SPEC = StandardModelSpec(
     supports_first_frame=True,
     supports_last_frame=True,
     max_reference_images=0,
+    validate=require_first_frame_for_last_frame,
 )
 
 

@@ -21,6 +21,14 @@ SCRIPT = SCRIPTS / "doubao_seedance_2_0.py"
 
 
 class Seedance20Tests(unittest.TestCase):
+    def test_frames_default_to_adaptive_and_preserve_an_explicit_ratio(self) -> None:
+        parser = build_standard_parser(MODEL_SPEC)
+        options = ["create", "--prompt", "Scene", "--first-frame", "https://cdn.example/first.png"]
+        implicit = build_standard_payload(MODEL_SPEC, parser.parse_args(options))
+        explicit = build_standard_payload(MODEL_SPEC, parser.parse_args(options + ["--ratio", "16:9"]))
+        self.assertEqual(implicit["ratio"], "adaptive")
+        self.assertEqual(explicit["ratio"], "16:9")
+
     def test_supports_4k_adaptive_ratio_and_audio_by_default(self) -> None:
         args = build_standard_parser(MODEL_SPEC).parse_args(
             ("create", "--prompt", "A bustling night market", "--resolution", "4K", "--ratio", "adaptive", "--duration", "15")
@@ -48,6 +56,7 @@ class Seedance20Tests(unittest.TestCase):
 
     def test_dry_run_uses_the_model_without_paid_confirmation(self) -> None:
         environment = os.environ.copy()
+        environment.pop("ICODEEASY_API_KEY", None)
         environment.pop("OPENAI_API_KEY", None)
         environment.pop("ANTHROPIC_AUTH_TOKEN", None)
         result = subprocess.run(

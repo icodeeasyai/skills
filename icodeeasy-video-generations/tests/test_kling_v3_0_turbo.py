@@ -36,7 +36,7 @@ class KlingV30TurboTests(unittest.TestCase):
                 "model": "kling-3.0-turbo",
                 "prompt": "A moving train",
                 "resolution": "1080p",
-                "ratio": "adaptive",
+                "ratio": "9:16",
                 "duration": 3,
                 "content": [
                     {

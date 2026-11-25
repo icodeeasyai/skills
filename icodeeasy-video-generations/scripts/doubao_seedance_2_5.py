@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from _video_common import StandardModelSpec, require_first_frame_for_last_frame, run_standard_model
+from _video_common import StandardModelSpec, run_standard_model, validate_seedance25_inputs
 
 
 MODEL_SPEC = StandardModelSpec(
@@ -18,8 +18,11 @@ MODEL_SPEC = StandardModelSpec(
     default_audio=True,
     supports_first_frame=True,
     supports_last_frame=True,
-    max_reference_images=0,
-    validate=require_first_frame_for_last_frame,
+    max_reference_images=2,
+    validate=validate_seedance25_inputs,
+    reference_image_role="reference_image",
+    max_reference_videos=10,
+    frame_ratio="adaptive",
 )
 
 

@@ -24,6 +24,15 @@ from fake_video_api import FakeVideoAPI  # noqa: E402
 
 
 class AuthenticationTests(unittest.TestCase):
+    def test_service_key_has_priority_over_compatible_environment_variables(self) -> None:
+        environment = {
+            "ICODEEASY_API_KEY": "service-key",
+            "OPENAI_API_KEY": "openai-key",
+            "ANTHROPIC_AUTH_TOKEN": "anthropic-token",
+        }
+        with mock.patch.dict(os.environ, environment, clear=True):
+            self.assertEqual(resolve_api_key(), ("service-key", "ICODEEASY_API_KEY"))
+
     def test_openai_key_has_priority_over_anthropic_token(self) -> None:
         environment = {
             "OPENAI_API_KEY": "openai-priority-key",

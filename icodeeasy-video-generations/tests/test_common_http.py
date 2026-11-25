@@ -144,8 +144,9 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "")
         self.assertEqual(stderr.getvalue(), "task accepted\n")
 
-    def test_all_three_official_https_hosts_are_accepted_exactly(self) -> None:
-        for host in ("api.icodeeasy.cc", "jp.icodeeasy.cc", "sg.icodeeasy.cc"):
+    def test_current_and_legacy_official_https_hosts_are_accepted_exactly(self) -> None:
+        for host in ("api.icodeeasy.ai", "jp.icodeeasy.ai", "sg.icodeeasy.ai",
+                     "api.icodeeasy.cc", "jp.icodeeasy.cc", "sg.icodeeasy.cc"):
             with self.subTest(host=host):
                 self.assertEqual(normalize_base_url(f"https://{host}/"), f"https://{host}")
 

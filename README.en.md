@@ -35,7 +35,7 @@ Install or update all image and GIF skills and their shared scripts. The command
 (
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
-  curl -fL https://github.com/iccccceeeeee/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
+  curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
   tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" &&
   for skill_dir in "$update_dir"/skills-main/icodeeasy-image-generations \
                    "$update_dir"/skills-main/image*-icodeeasy \
@@ -60,37 +60,43 @@ Authentication also supports `ANTHROPIC_AUTH_TOKEN`. Generated images and downlo
 
 The general [icodeeasy-image-generations](icodeeasy-image-generations/SKILL.md) skill defaults to Image 2 when you leave the model unspecified. If you ask for Image 2.5 or 2.6 without naming a variant, it uses Flare for that version.
 
-### `icodeeasy-video-generations`
+### 3D and video generation
 
-Create, poll, download, or delete asynchronous video tasks with the iCodeEasy Video API.
+| Model | Skill |
+| --- | --- |
+| Hunyuan 3D 3.1 and Express | [hunyuan-3d-icodeeasy](hunyuan-3d-icodeeasy/SKILL.md) |
+| Tripo H3.1, P1, and P2 | [tripo-3d-icodeeasy](tripo-3d-icodeeasy/SKILL.md) |
+| Seedance 2.5, 2.5 Flash, 2.0 variants, and 1.5 Pro | [seedance-icodeeasy](seedance-icodeeasy/SKILL.md) |
+| MiniMax H3 video | [minimax-h3-icodeeasy](minimax-h3-icodeeasy/SKILL.md) |
 
-Install into Codex:
+The [general 3D skill](icodeeasy-3d-generations/SKILL.md) covers model discovery, price quotes, generation, polling, and downloads. The [general video skill](icodeeasy-video-generations/SKILL.md) also covers other supported video models and recovery of existing tasks.
 
-```bash
-if [ -d ~/.codex/skills/icodeeasy-video-generations ]; then echo "icodeeasy-video-generations is already installed"; else mkdir -p ~/.codex/skills && curl -L https://github.com/iccccceeeeee/skills/archive/refs/heads/main.tar.gz | tar -xz -C ~/.codex/skills --strip-components=1 skills-main/icodeeasy-video-generations; fi
-```
-
-Restart Codex after installing or updating the skill.
-
-Configure API access:
-
-```bash
-export OPENAI_API_KEY="<your-api-key>"
-```
-
-In Codex, invoke `$icodeeasy-video-generations` and describe the video to create. Creating a task is a paid API call: use `--confirm-paid` only after explicit user authorization, and use `--dry-run` when unsure. Generated videos and temporary downloads belong in `out/` and are ignored by default.
-
-Existing installations need an update: the installation command above skips a directory that already exists. This downloads and successfully extracts the archive before replacing repository files in the video skill, while preserving additional local files. Restart Codex afterward.
+Install or update all four entries and their shared scripts with the command below. It preserves extra local files. Restart Codex afterward.
 
 ```bash
 (
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
-  curl -fL https://github.com/iccccceeeeee/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
-  tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" skills-main/icodeeasy-video-generations &&
-  mkdir -p ~/.codex/skills/icodeeasy-video-generations &&
-  cp -R "$update_dir/skills-main/icodeeasy-video-generations/." ~/.codex/skills/icodeeasy-video-generations/
+  set -- hunyuan-3d-icodeeasy tripo-3d-icodeeasy icodeeasy-3d-generations \
+         seedance-icodeeasy minimax-h3-icodeeasy icodeeasy-video-generations
+  curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
+  tar -xzf "$update_dir/skills.tar.gz" -C "$update_dir" || exit 1
+  for skill_name do
+    test -f "$update_dir/skills-main/$skill_name/SKILL.md" || exit 1
+  done
+  for skill_name do
+    mkdir -p "$HOME/.codex/skills/$skill_name" &&
+    cp -R "$update_dir/skills-main/$skill_name/." "$HOME/.codex/skills/$skill_name/" || exit 1
+  done
 )
 ```
 
-A polling or download error does not prove generation failed. Keep the task ID and recover the same task with `video_task.py poll` or `download`. Successful videos are also available in the API Key owner's [usage details](https://icodeeasy.cc/dashboard/logs/). Create the output directory first, for example with `mkdir -p ./out`; do not create another paid task to recover a file.
+Set your iCodeEasy account API key in its own environment variable.
+
+```bash
+export ICODEEASY_API_KEY="<your-api-key>"
+```
+
+Try `$hunyuan-3d-icodeeasy create a low-poly ceramic cup as a GLB` or `$seedance-icodeeasy create a six-second video of morning mist on a lake with 2.5 Flash`. Creating a task incurs charges. Use `--confirm-paid` after the user authorizes the call. Use `--dry-run` to inspect a request or `quote` to check the current price of a 3D request.
+
+If polling or downloading is interrupted, keep the task ID and recover the same task. Completed videos are also available in the API key owner's [usage details](https://icodeeasy.ai/dashboard/logs/).

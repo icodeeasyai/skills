@@ -36,7 +36,7 @@ class KlingV3Tests(unittest.TestCase):
 
         self.assertTrue(build_standard_payload(MODEL_SPEC, defaults)["generate_audio"])
         payload = build_standard_payload(MODEL_SPEC, frames)
-        self.assertEqual((payload["resolution"], payload["duration"], payload["ratio"]), ("4K", 15, "adaptive"))
+        self.assertEqual((payload["resolution"], payload["duration"], payload["ratio"]), ("4K", 15, "9:16"))
         self.assertEqual([image["role"] for image in payload["content"]], ["first_frame", "last_frame"])
 
     def test_rejects_roleless_references_last_only_and_out_of_range_duration(self) -> None:

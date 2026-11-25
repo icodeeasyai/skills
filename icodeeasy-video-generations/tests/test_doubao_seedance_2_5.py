@@ -15,6 +15,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from _video_common import (  # noqa: E402
     StandardModelSpec,
+    UserError,
     build_standard_parser,
     build_standard_payload,
 )
@@ -30,6 +31,7 @@ def _parse(*arguments: str):
 
 def _run(*arguments: str) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
+    environment.pop("ICODEEASY_API_KEY", None)
     environment.pop("OPENAI_API_KEY", None)
     environment.pop("ANTHROPIC_AUTH_TOKEN", None)
     return subprocess.run(
@@ -73,13 +75,11 @@ class Seedance25Tests(unittest.TestCase):
         self.assertEqual(payload["resolution"], "720p")
         self.assertEqual(payload["duration"], 30)
 
-    def test_first_and_last_frames_have_roles_and_force_adaptive_ratio(self) -> None:
+    def test_first_and_last_frames_have_roles_and_adaptive_ratio(self) -> None:
         args = _parse(
             "create",
             "--prompt",
             "Move naturally between frames",
-            "--ratio",
-            "16:9",
             "--first-frame",
             "https://cdn.example/first.png",
             "--last-frame",
@@ -105,12 +105,19 @@ class Seedance25Tests(unittest.TestCase):
             ],
         )
 
+    def test_explicit_fixed_ratio_is_rejected_for_frame_only_generation(self) -> None:
+        args = _parse(
+            "create", "--prompt", "Scene", "--ratio", "16:9",
+            "--first-frame", "https://cdn.example/first.png",
+        )
+        with self.assertRaisesRegex(UserError, "requires --ratio adaptive"):
+            build_standard_payload(MODEL_SPEC, args)
+
     def test_rejects_unsupported_or_invalid_frame_options(self) -> None:
         invalid_commands = (
             ("create", "--prompt", "x", "--resolution", "1080p"),
             ("create", "--prompt", "x", "--duration", "31"),
             ("create", "--prompt", "x", "--last-frame", "https://cdn.example/last.png"),
-            ("create", "--prompt", "x", "--reference-image", "https://cdn.example/reference.png"),
             ("create", "--prompt", "x", "--first-frame", "data:image/png;base64,AAAA"),
             ("create", "--prompt", "x", "--callback", "https://hooks.example/video"),
         )
@@ -118,6 +125,40 @@ class Seedance25Tests(unittest.TestCase):
         for command in invalid_commands:
             with self.subTest(command=command), self.assertRaises(SystemExit):
                 _parse(*command)
+
+    def test_reference_videos_preserve_fixed_ratio_and_image_roles(self) -> None:
+        args = _parse(
+            "create", "--prompt", "Follow @Video1 and @Video2", "--ratio", "16:9",
+            "--reference-video", "https://cdn.example/one.mp4",
+            "--reference-video", "https://cdn.example/two.mov",
+            "--reference-image", "https://cdn.example/reference.png",
+            "--last-frame", "https://cdn.example/last.png",
+        )
+        payload = build_standard_payload(MODEL_SPEC, args)
+        self.assertEqual(payload["ratio"], "16:9")
+        self.assertEqual(payload["content"][-2:], [
+            {"type": "video_url", "video_url": "https://cdn.example/one.mp4", "role": "reference_video"},
+            {"type": "video_url", "video_url": "https://cdn.example/two.mov", "role": "reference_video"},
+        ])
+        self.assertEqual(payload["content"][1]["role"], "reference_image")
+
+    def test_rejects_more_than_ten_reference_videos(self) -> None:
+        options = ["create", "--prompt", "x"]
+        for index in range(11):
+            options.extend(("--reference-video", f"https://cdn.example/{index}.mp4"))
+        args = _parse(*options)
+        with self.assertRaisesRegex(UserError, "at most 10 reference videos"):
+            build_standard_payload(MODEL_SPEC, args)
+
+    def test_reference_images_and_frames_share_the_two_image_limit(self) -> None:
+        with self.assertRaises(SystemExit):
+            _parse(
+                "create", "--prompt", "x",
+                "--reference-video", "https://cdn.example/one.mp4",
+                "--first-frame", "https://cdn.example/first.png",
+                "--last-frame", "https://cdn.example/last.png",
+                "--reference-image", "https://cdn.example/extra.png",
+            )
 
     def test_rejects_non_public_first_and_last_frame_urls(self) -> None:
         invalid_commands = (

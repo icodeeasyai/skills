@@ -15,6 +15,7 @@ SKILL_ROOT = REPOSITORY_ROOT / "icodeeasy-video-generations"
 
 EXPECTED_MODEL_SCRIPTS = (
     "doubao_seedance_2_5.py",
+    "doubao_seedance_2_5_flash.py",
     "doubao_seedance_2_0.py",
     "doubao_seedance_2_0_fast.py",
     "doubao_seedance_2_0_mini.py",
@@ -137,7 +138,6 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn("video_task.py", skill)
         for text in (readme, readme_en):
             self.assertIn("icodeeasy-video-generations", text)
-            self.assertIn("skills-main/icodeeasy-video-generations", text)
             self.assertIn("OPENAI_API_KEY", text)
         for rule in ("**/__pycache__/", "*.pyc", ".env*", "**/out/", "*.part", "**/out/*.mp4"):
             self.assertIn(rule, ignore_rules)

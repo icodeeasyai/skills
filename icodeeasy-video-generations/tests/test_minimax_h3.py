@@ -22,6 +22,7 @@ SCRIPT = SCRIPTS / "minimax_h3.py"
 
 def _run(*arguments: str) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
+    environment.pop("ICODEEASY_API_KEY", None)
     environment.pop("OPENAI_API_KEY", None)
     environment.pop("ANTHROPIC_AUTH_TOKEN", None)
     return subprocess.run(
@@ -71,6 +72,8 @@ class MiniMaxH3Tests(unittest.TestCase):
                 "create",
                 "--prompt",
                 "Match the opening and ending shots",
+                "--ratio",
+                "16:9",
                 "--first-frame",
                 "https://cdn.example/first.png",
                 "--last-frame",
@@ -79,6 +82,8 @@ class MiniMaxH3Tests(unittest.TestCase):
         )
 
         payload = build_standard_payload(MODEL_SPEC, args)
+
+        self.assertEqual(payload["ratio"], "16:9")
 
         self.assertEqual(
             payload["content"],
@@ -103,6 +108,7 @@ class MiniMaxH3Tests(unittest.TestCase):
             ("create", "--prompt", "x", "--resolution", "2k"),
             ("create", "--prompt", "x", "--duration", "3"),
             ("create", "--prompt", "x", "--duration", "16"),
+            ("create", "--prompt", "x", "--last-frame", "https://cdn.example/last.png"),
         ):
             with self.subTest(arguments=arguments), self.assertRaises(SystemExit):
                 parser.parse_args(arguments)

@@ -21,6 +21,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "video_task.py"
 
 def _run(*args: str, api_key: str | None = "cli-secret") -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
+    environment.pop("ICODEEASY_API_KEY", None)
     environment.pop("OPENAI_API_KEY", None)
     environment.pop("ANTHROPIC_AUTH_TOKEN", None)
     if api_key is not None:

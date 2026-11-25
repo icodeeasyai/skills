@@ -1,10 +1,34 @@
 # Ice Skills
 
-Codex skills for local workflows.
+Agent Skills for Codex and Claude Code, sharing the same model instructions and scripts.
 
 中文版本: [README.md](README.md)
 
-Skills install into `~/.codex/skills/`. The commands below use `curl` and `tar`.
+## Installation directory and invocation
+
+Choose an installation directory in your current terminal, then run the relevant installation command below. The commands use `curl` and `tar` and place model skills and shared scripts under the same directory.
+
+| Client | Installation directory | Chat invocation |
+| --- | --- | --- |
+| Codex, existing installation from this repository | `~/.codex/skills/` | `$seedance-2-5-flash-icodeeasy` |
+| Codex, new installation | `~/.agents/skills/` | `$seedance-2-5-flash-icodeeasy` |
+| Claude Code | `~/.claude/skills/` | `/seedance-2-5-flash-icodeeasy` |
+
+Existing Codex users can run the commands below directly. They default to updating `~/.codex/skills/`. If you already installed under `~/.agents/skills/`, keep selecting that directory. Keep one installation per client to avoid discovering duplicate skill names.
+
+For a new Codex installation, run this in your current terminal:
+
+```bash
+export ICODEEASY_SKILLS_DIR="$HOME/.agents/skills"
+```
+
+For Claude Code, run this in your current terminal:
+
+```bash
+export ICODEEASY_SKILLS_DIR="$HOME/.claude/skills"
+```
+
+To return to the older Codex installation directory, set `ICODEEASY_SKILLS_DIR="$HOME/.codex/skills"`. Restart your client and begin a new chat after installation or updates. The `$skill-name` examples below use Codex syntax. In Claude Code, use `/skill-name` with the same generation request.
 
 ## Skills
 
@@ -33,6 +57,7 @@ Install or update all image and GIF skills and their shared scripts. The command
 
 ```bash
 (
+  skills_dir="${ICODEEASY_SKILLS_DIR:-$HOME/.codex/skills}"
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
   curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
@@ -42,13 +67,13 @@ Install or update all image and GIF skills and their shared scripts. The command
                    "$update_dir"/skills-main/seedream*-icodeeasy \
                    "$update_dir"/skills-main/flux*-icodeeasy; do
     skill_name=${skill_dir##*/}
-    mkdir -p "$HOME/.codex/skills/$skill_name" &&
-    cp -R "$skill_dir/." "$HOME/.codex/skills/$skill_name/" || exit 1
+    mkdir -p "$skills_dir/$skill_name" &&
+    cp -R "$skill_dir/." "$skills_dir/$skill_name/" || exit 1
   done
 )
 ```
 
-After updating an older installation, you can remove just the `SKILL.md` files from `image25-icodeeasy`, `image26-icodeeasy`, `image26-gif-icodeeasy`, `seedream-icodeeasy`, and `flux-icodeeasy` under `~/.codex/skills/`. You can keep any other files in those directories. Restart Codex to refresh the skill list.
+After updating an older installation, you can remove just the `SKILL.md` files from `image25-icodeeasy`, `image26-icodeeasy`, `image26-gif-icodeeasy`, `seedream-icodeeasy`, and `flux-icodeeasy` under your selected installation directory. You can keep any other files in those directories. Restart your client to refresh the skill list.
 
 Configure the API key, then invoke the desired skill in a new chat.
 
@@ -83,6 +108,7 @@ Install or update the model skills and their shared scripts with the command bel
 
 ```bash
 (
+  skills_dir="${ICODEEASY_SKILLS_DIR:-$HOME/.codex/skills}"
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
   set -- icodeeasy-3d-generations icodeeasy-video-generations \
@@ -97,13 +123,13 @@ Install or update the model skills and their shared scripts with the command bel
     test -f "$update_dir/skills-main/$skill_name/SKILL.md" || exit 1
   done
   for skill_name do
-    mkdir -p "$HOME/.codex/skills/$skill_name" &&
-    cp -R "$update_dir/skills-main/$skill_name/." "$HOME/.codex/skills/$skill_name/" || exit 1
+    mkdir -p "$skills_dir/$skill_name" &&
+    cp -R "$update_dir/skills-main/$skill_name/." "$skills_dir/$skill_name/" || exit 1
   done
 )
 ```
 
-If you installed the previous release, you can remove the old `SKILL.md` files from the `hunyuan-3d-icodeeasy`, `tripo-3d-icodeeasy`, and `seedance-icodeeasy` directories under `~/.codex/skills/`. Restart Codex to use the entries in the table.
+If you installed the previous release, you can remove the old `SKILL.md` files from the `hunyuan-3d-icodeeasy`, `tripo-3d-icodeeasy`, and `seedance-icodeeasy` directories under your selected installation directory. Restart your client to use the entries in the table.
 
 Set your iCodeEasy account API key in its own environment variable.
 

@@ -1,10 +1,34 @@
 # Ice Skills
 
-Codex skills for local workflows.
+I Code Easy 的 Agent Skills，支持 Codex 和 Claude Code，使用同一套模型说明与调用脚本。
 
 English version: [README.en.md](README.en.md)
 
-Skills 安装到 `~/.codex/skills/`。下面的安装命令使用 `curl` 和 `tar`。
+## 安装目录与调用
+
+先在当前终端选择安装目录，再运行下方对应的安装命令。命令使用 `curl` 和 `tar`，会把模型入口和共享脚本放在同一目录下。
+
+| 客户端 | 安装目录 | 聊天中的调用 |
+| --- | --- | --- |
+| Codex，已有本仓库安装 | `~/.codex/skills/` | `$seedance-2-5-flash-icodeeasy` |
+| Codex，新安装 | `~/.agents/skills/` | `$seedance-2-5-flash-icodeeasy` |
+| Claude Code | `~/.claude/skills/` | `/seedance-2-5-flash-icodeeasy` |
+
+已有 Codex 安装可直接运行下方命令，默认更新 `~/.codex/skills/`。如果已安装在 `~/.agents/skills/`，继续选择该目录。为同一客户端保留一份安装，避免重复发现同名 skill。
+
+新安装 Codex 时，在当前终端运行：
+
+```bash
+export ICODEEASY_SKILLS_DIR="$HOME/.agents/skills"
+```
+
+安装到 Claude Code 时，在当前终端运行：
+
+```bash
+export ICODEEASY_SKILLS_DIR="$HOME/.claude/skills"
+```
+
+切回旧版 Codex 安装目录时，设置 `ICODEEASY_SKILLS_DIR="$HOME/.codex/skills"`。安装或更新后，重新启动所用客户端并开始新聊天。下面的 `$skill-name` 示例用于 Codex，在 Claude Code 中使用 `/skill-name`，后面的生成要求相同。
 
 ## Skills
 
@@ -33,6 +57,7 @@ GIF 可以纯文生，也可以附参考图，帧数、帧间隔和尺寸由模�
 
 ```bash
 (
+  skills_dir="${ICODEEASY_SKILLS_DIR:-$HOME/.codex/skills}"
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
   curl -fL https://github.com/icodeeasyai/skills/archive/refs/heads/main.tar.gz -o "$update_dir/skills.tar.gz" &&
@@ -42,13 +67,13 @@ GIF 可以纯文生，也可以附参考图，帧数、帧间隔和尺寸由模�
                    "$update_dir"/skills-main/seedream*-icodeeasy \
                    "$update_dir"/skills-main/flux*-icodeeasy; do
     skill_name=${skill_dir##*/}
-    mkdir -p "$HOME/.codex/skills/$skill_name" &&
-    cp -R "$skill_dir/." "$HOME/.codex/skills/$skill_name/" || exit 1
+    mkdir -p "$skills_dir/$skill_name" &&
+    cp -R "$skill_dir/." "$skills_dir/$skill_name/" || exit 1
   done
 )
 ```
 
-旧版安装更新后，可删除 `~/.codex/skills/` 下 `image25-icodeeasy`、`image26-icodeeasy`、`image26-gif-icodeeasy`、`seedream-icodeeasy` 和 `flux-icodeeasy` 各目录中的 `SKILL.md`。目录里的其他文件可保留。重启 Codex 后，旧入口会从技能列表消失。
+旧版安装更新后，可从所选安装目录删除 `image25-icodeeasy`、`image26-icodeeasy`、`image26-gif-icodeeasy`、`seedream-icodeeasy` 和 `flux-icodeeasy` 各目录中的 `SKILL.md`。目录里的其他文件可保留。重启客户端后，旧入口会从技能列表消失。
 
 配置 API Key 后，在新聊天中直接调用对应 skill。
 
@@ -83,6 +108,7 @@ export OPENAI_API_KEY="<your-api-key>"
 
 ```bash
 (
+  skills_dir="${ICODEEASY_SKILLS_DIR:-$HOME/.codex/skills}"
   update_dir=$(mktemp -d) || exit 1
   trap 'rm -rf "$update_dir"' EXIT
   set -- icodeeasy-3d-generations icodeeasy-video-generations \
@@ -97,13 +123,13 @@ export OPENAI_API_KEY="<your-api-key>"
     test -f "$update_dir/skills-main/$skill_name/SKILL.md" || exit 1
   done
   for skill_name do
-    mkdir -p "$HOME/.codex/skills/$skill_name" &&
-    cp -R "$update_dir/skills-main/$skill_name/." "$HOME/.codex/skills/$skill_name/" || exit 1
+    mkdir -p "$skills_dir/$skill_name" &&
+    cp -R "$update_dir/skills-main/$skill_name/." "$skills_dir/$skill_name/" || exit 1
   done
 )
 ```
 
-升级后，若已安装旧的品牌入口，可从 `~/.codex/skills/` 下的 `hunyuan-3d-icodeeasy`、`tripo-3d-icodeeasy`、`seedance-icodeeasy` 目录移除各自的 `SKILL.md`。重启 Codex 后，使用上表中的模型入口。
+升级后，若已安装旧的品牌入口，可从所选安装目录下的 `hunyuan-3d-icodeeasy`、`tripo-3d-icodeeasy`、`seedance-icodeeasy` 目录移除各自的 `SKILL.md`。重启客户端后，使用上表中的模型入口。
 
 在环境中配置 iCodeEasy 的账号 API Key，避免和其他服务的 Key 混用。
 
